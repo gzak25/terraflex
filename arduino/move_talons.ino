@@ -1,7 +1,6 @@
 // This code is used for controlling the talons depending the predicted label
 
 #include <Servo.h>
-#include <arduino/data_collection.ino>
 
 // Define servo objects
 Servo frontLeftServo;
@@ -60,7 +59,12 @@ void loop() {
 
   if (Serial.available() > 0 && !moveInProgress) {
     String input = Serial.readStringUntil('\n');
+    // Serial.print("got input----");
+    // Serial.print(input);
+    // Serial.print("-----");
     input.trim();
+    // Serial.println(input);
+    
     if (input.length() > 0 && input != status) {
       Serial.print("Got input: ");
       Serial.println(input);
@@ -71,6 +75,7 @@ void loop() {
 }
 
 void moveTalons() {
+  Serial.println("-----Moving talons------");
   moveInProgress = true;
   if (status == "stable") {
     stable();
@@ -89,6 +94,7 @@ void moveTalons() {
 }
 
 void back() {
+  Serial.println("Back movement");
   frontLeftServo.write(CLOSED_POS);
   frontRightServo.write(CLOSED_POS);
   backLeftServo.write(OPEN_POS);
@@ -96,6 +102,7 @@ void back() {
 }
 
 void forward() {
+  Serial.println("Forward movement");
   frontLeftServo.write(OPEN_POS);
   frontRightServo.write(OPEN_POS);
   backLeftServo.write(CLOSED_POS);
@@ -103,6 +110,7 @@ void forward() {
 }
 
 void left() {
+  Serial.println("Left movement");
   frontLeftServo.write(OPEN_POS);
   frontRightServo.write(CLOSED_POS);
   backLeftServo.write(OPEN_POS);
@@ -110,6 +118,7 @@ void left() {
 }
 
 void right() {
+  Serial.println("Right movement");
   frontLeftServo.write(CLOSED_POS);
   frontRightServo.write(OPEN_POS);
   backLeftServo.write(CLOSED_POS);
@@ -117,8 +126,31 @@ void right() {
 }
 
 void stable() {
+  Serial.println("Already stable");
   frontLeftServo.write(OPEN_POS);
   frontRightServo.write(OPEN_POS);
   backLeftServo.write(OPEN_POS);
   backRightServo.write(OPEN_POS);
+}
+
+// Function to read the EMG and Pressure sensor values
+void readSensors() {
+  emgValue = analogRead(A1);
+  frontLeft1Value = analogRead(A2); // Pressure sensor in front left toe
+  frontLeft2Value = analogRead(A3); // Pressure sensor in front left middle
+  frontRight1Value = analogRead(A4); // Pressure sensor in front right toe
+  frontRight2Value = analogRead(A5); // Pressure sensor in front right middle
+  backLeftValue = analogRead(A6); // Pressure sensor in back left toe
+  backRightValue = analogRead(A7); // Pressure sensor in back right toe
+}
+
+// Function to print the data to the serial monitor
+void serialPrintData() {
+  Serial.print(emgValue); Serial.print(',');
+  Serial.print(frontLeft1Value); Serial.print(',');
+  Serial.print(frontLeft2Value); Serial.print(',');
+  Serial.print(frontRight1Value); Serial.print(',');
+  Serial.print(frontRight1Value); Serial.print(',');
+  Serial.print(backLeftValue); Serial.print(',');
+  Serial.println(backRightValue);
 }
