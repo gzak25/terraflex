@@ -5,14 +5,14 @@ import time
 import serial
 import pandas as pd
 
-SERIAL_PORT = "/dev/ttyACM0"
+SERIAL_PORT = "/dev/cu.usbserial-110"
 BAUD_RATE = 9600
 DATA_DIR = "./EMG_and_pressure_data/"
 
 if not os.path.exists(DATA_DIR):
     os.makedirs(DATA_DIR)
 
-STATE = ["back"]  # change label based on what data you're collecting
+STATE = ["stable"]  # change label based on what data you're collecting
 DURATION = 0.5  # Duration to collect data (in seconds)
 REPETITIONS = 20  # Number of repetitions
 
@@ -30,7 +30,7 @@ def collect_pressure_data(state_label, repetition, duration=DURATION):
             )
             start_time = time.time()
             data = []
-            prefix = "Pressure Sensor Data "
+            prefix = ""
             while time.time() - start_time < duration:
                 try:
                     line = ser.readline().decode("utf-8").strip()
@@ -38,41 +38,38 @@ def collect_pressure_data(state_label, repetition, duration=DURATION):
                         continue
 
                     # Process lines that start with the sensor data header
-                    if line.startswith(prefix):
-                        sensor_data_str = line[
-                            len(prefix) :
-                        ]  # Extract numbers after the header
-                        values = sensor_data_str.split(",")
-                        if len(values) == 7:
-                            try:
-                                emg = int(values[0])
-                                front_left_1 = int(values[1])
-                                front_left_2 = int(values[2])
-                                front_right_1 = int(values[3])
-                                front_right_2 = int(values[4])
-                                back_left = int(values[5])
-                                back_right = int(values[6])
-                            except ValueError:
-                                print(f"Invalid sensor values: {values}")
-                                continue
+                    sensor_data_str = line[
+                        len(prefix) :
+                    ]  # Extract numbers after the header
+                    values = sensor_data_str.split(",")
+                    if len(values) == 7:
+                        try:
+                            emg = int(values[0])
+                            front_left_1 = int(values[1])
+                            front_left_2 = int(values[2])
+                            front_right_1 = int(values[3])
+                            front_right_2 = int(values[4])
+                            back_left = int(values[5])
+                            back_right = int(values[6])
+                        except ValueError:
+                            print(f"Invalid sensor values: {values}")
+                            continue
 
-                            timestamp = time.time()
-                            data.append(
-                                [
-                                    timestamp,
-                                    emg,
-                                    front_left_1,
-                                    front_left_2,
-                                    front_right_1,
-                                    front_right_2,
-                                    back_left,
-                                    back_right,
-                                ]
-                            )
-                        else:
-                            print(f"Unexpected sensor data format: {sensor_data_str}")
+                        timestamp = time.time()
+                        data.append(
+                            [
+                                timestamp,
+                                emg,
+                                front_left_1,
+                                front_left_2,
+                                front_right_1,
+                                front_right_2,
+                                back_left,
+                                back_right,
+                            ]
+                        )
                     else:
-                        continue
+                        print(f"Unexpected sensor data format: {sensor_data_str}")
 
                 except Exception as e:
                     print(f"Error reading data: {e}")
