@@ -1,11 +1,13 @@
-import serial
-import time
-import pandas as pd
+"""Script to collect EMG and pressure sensor data from Arduino."""
+
 import os
+import time
+import serial
+import pandas as pd
 
 SERIAL_PORT = "/dev/ttyACM0"
 BAUD_RATE = 9600
-DATA_DIR = "./EMG_and_pressure_data_collection/"
+DATA_DIR = "./EMG_and_pressure_data/"
 
 if not os.path.exists(DATA_DIR):
     os.makedirs(DATA_DIR)
@@ -16,6 +18,9 @@ REPETITIONS = 20  # Number of repetitions
 
 
 def collect_pressure_data(state_label, repetition, duration=DURATION):
+    """
+    Collects pressure sensor data from Arduino and saves it to a CSV file.
+    """
     print("Connecting to Arduino.")
     try:
         with serial.Serial(SERIAL_PORT, BAUD_RATE, timeout=1) as ser:
